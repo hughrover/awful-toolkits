@@ -1,0 +1,47 @@
+services:
+  db:
+    image: mysql:latest
+    container_name: toolkits-db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB_NAME}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./toolkits/toolkits-bootstrap/src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./toolkits
+      dockerfile: Dockerfile
+    container_name: toolkits-backend
+    environment:
+      MYSQL_DB_NAME: ${MYSQL_DB_NAME}
+      MYSQL_USERNAME: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      AI_DASHSCOPE_API_KEY: ${AI_DASHSCOPE_API_KEY:-}
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DB_NAME}?useSSL=false&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true
+    ports:
+      - "${BACKEND_PORT}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./toolkits-frontend
+      dockerfile: Dockerfile
+    container_name: toolkits-frontend
+    ports:
+      - "${FRONTEND_PORT}:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:

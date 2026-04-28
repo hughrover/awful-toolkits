@@ -1,0 +1,28 @@
+# IDE
+*.iml
+.idea/
+.vscode/
+
+# Java
+**/target/
+
+# Maven
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node
+**/node_modules/
+
+# Frontend build output
+**/dist/
+
+# macOS
+.DS_Store
+
+# Environment
+.env
+
+# Claude Code
+.claude/
+
+# OpenSpec
+openspec/

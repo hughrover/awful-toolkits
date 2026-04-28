@@ -1,0 +1,187 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.12</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>fun</groupId>
+    <artifactId>toolkits</artifactId>
+    <version>${revision}</version>
+    <name>toolkits</name>
+    <url>http://maven.apache.org</url>
+
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>toolkits-bootstrap</module>
+        <module>toolkits-dal</module>
+        <module>toolkits-model</module>
+        <module>toolkits-web</module>
+        <module>toolkits-service</module>
+    </modules>
+
+    <properties>
+        <!-- project version -->
+        <revision>1.0-SNAPSHOT</revision>
+        <!-- java version -->
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <!-- source encoding -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- lombok -->
+        <lombok.version>1.18.30</lombok.version>
+        <!-- mybatis plus -->
+        <mybatis-plus.version>3.5.14</mybatis-plus.version>
+        <!-- junit -->
+        <junit.version>3.8.1</junit.version>
+        <!-- poi -->
+        <poi.version>5.2.5</poi.version>
+        <!-- itext -->
+        <itext.version>8.0.2</itext.version>
+        <!-- fastjson -->
+        <fastjson.version>2.0.52</fastjson.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- mybatis plus -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- lombok -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+
+            <!-- junit -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- poi for excel processing -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <!-- itext for pdf generation -->
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>itext-core</artifactId>
+                <version>${itext.version}</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>kernel</artifactId>
+                <version>${itext.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>layout</artifactId>
+                <version>${itext.version}</version>
+            </dependency>
+
+            <!-- fastjson -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+
+            <!-- toolkits modules -->
+            <dependency>
+                <groupId>fun</groupId>
+                <artifactId>toolkits-bootstrap</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>fun</groupId>
+                <artifactId>toolkits-dal</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>fun</groupId>
+                <artifactId>toolkits-model</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>fun</groupId>
+                <artifactId>toolkits-web</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>fun</groupId>
+                <artifactId>toolkits-service</artifactId>
+                <version>${revision}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <name>Sonatype Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>alibaba-ai</id>
+            <name>Alibaba AI</name>
+            <url>https://maven.aliyun.com/repository/spring</url>
+        </repository>
+    </repositories>
+</project>
