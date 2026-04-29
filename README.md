@@ -1,52 +1,52 @@
-# 工作工具集平台
+# Awful Toolkits Platform
 
-一个前后端分离的工作工具集 Web 应用，提供项目预算管理和人员管理功能。
+A decoupled work toolkit web application providing project budget management and personnel management functions.
 
-## 功能模块
+## Features
 
-- **项目预算管理**：项目 CRUD、WBS 功能拆解（最多 5 层）、预算项填写与汇总计算
-- **项目人员管理**：人员 CRUD、月薪管理与历史记录、开发角色管理、项目团队分配
+- **Project Budget Management**: Project CRUD, WBS (Work Breakdown Structure) feature decomposition (up to 5 levels), budget item entry, and aggregate calculations.
+- **Personnel Management**: Personnel CRUD, monthly salary management and history, development role management, and project team allocation.
 
-## 技术栈
+## Tech Stack
 
-| 层级 | 技术 |
+| Layer | Technology |
 |------|------|
-| 前端 | Vue 3 + TypeScript + Vite + Element Plus |
-| 后端 | Spring Boot 3.5 + MyBatis-Plus |
-| 数据库 | MySQL 8.x |
-| 部署 | Docker + Docker Compose + Nginx |
+| Frontend | Vue 3 + TypeScript + Vite + Element Plus |
+| Backend | Spring Boot 3.5 + MyBatis-Plus |
+| Database | MySQL 8.x |
+| Deployment | Docker + Docker Compose + Nginx |
 
-## 项目结构
+## Project Structure
 
 ```
-├── toolkits/                    # 后端 Spring Boot 多模块项目
-│   ├── toolkits-bootstrap/      # 启动模块（Spring Boot 入口）
-│   ├── toolkits-dal/            # 数据访问层（MyBatis-Plus Mapper）
-│   ├── toolkits-model/          # 实体模型
-│   ├── toolkits-service/        # 业务逻辑层
-│   └── toolkits-web/            # 控制器层（REST API）
-├── toolkits-frontend/           # 前端 Vue 项目
-├── docker-compose.yml           # Docker 编排配置
-└── .env                         # 环境变量配置
+├── toolkits/                    # Backend Spring Boot multi-module project
+│   ├── toolkits-bootstrap/      # Bootstrap module (Spring Boot entry point)
+│   ├── toolkits-dal/            # Data Access Layer (MyBatis-Plus Mappers)
+│   ├── toolkits-model/          # Entity models
+│   ├── toolkits-service/        # Business logic layer
+│   └── toolkits-web/            # Web/Controller layer (REST APIs)
+├── toolkits-frontend/           # Frontend Vue project
+├── docker-compose.yml           # Docker orchestration configuration
+└── .env                         # Environment variables configuration
 ```
 
-## 前置要求
+## Prerequisites
 
 - JDK 17+
 - Node.js 20+
 - Maven 3.8+
 - Docker & Docker Compose
 
-## 构建与运行
+## Build and Run
 
-### 1. 构建后端
+### 1. Build Backend
 
 ```bash
 cd toolkits
 mvn clean package -DskipTests
 ```
 
-### 2. 构建前端
+### 2. Build Frontend
 
 ```bash
 cd toolkits-frontend
@@ -54,55 +54,55 @@ npm install
 npm run build-only
 ```
 
-### 3. 配置环境变量
+### 3. Configure Environment Variables
 
-编辑项目根目录 `.env` 文件：
+Edit the `.env` file in the project root:
 
 ```env
-# 数据库
+# Database
 MYSQL_ROOT_PASSWORD=root123
 MYSQL_DB_NAME=toolkits
 MYSQL_USERNAME=root
 MYSQL_PASSWORD=root123
 DB_PORT=3306
 
-# 后端
+# Backend
 BACKEND_PORT=8080
 
-# 前端
+# Frontend
 FRONTEND_PORT=80
 ```
 
-### 4. 一键启动
+### 4. Start with Docker
 
 ```bash
 docker-compose up -d
 ```
 
-三个容器会按依赖顺序启动：MySQL → Backend → Frontend。
+Three containers will start in order of dependency: MySQL → Backend → Frontend.
 
-### 5. 访问应用
+### 5. Access the Application
 
-- 前端：http://localhost
-- 后端 API：http://localhost:8080/api/v1
+- Frontend: http://localhost
+- Backend API: http://localhost:8080/api/v1
 
-### 停止服务
+### Stop Services
 
 ```bash
 docker-compose down
 ```
 
-数据保留在 Docker volume 中，重新启动后数据不丢失。
+Data is persisted in a Docker volume and will not be lost after a restart.
 
-## API 接口
+## API Endpoints
 
-| 模块 | 路径 | 说明 |
+| Module | Path | Description |
 |------|------|------|
-| 项目 | `GET/POST /api/v1/projects` | 项目列表 / 新建项目 |
-| 项目 | `GET/PUT/DELETE /api/v1/projects/{id}` | 项目详情 / 编辑 / 删除 |
-| 功能拆解 | `GET/POST /api/v1/projects/{id}/features` | WBS 树 / 添加功能 |
-| 预算项 | `GET/POST /api/v1/features/{id}/budget-items` | 预算项列表 / 新增 |
-| 人员 | `GET/POST /api/v1/personnel` | 人员列表 / 新增 |
-| 薪资 | `GET/POST /api/v1/personnel/{id}/salaries` | 薪资历史 / 调薪 |
-| 角色 | `GET/POST /api/v1/roles` | 角色列表 / 新增 |
-| 团队 | `GET/POST /api/v1/projects/{id}/team` | 项目团队 / 分配成员 |
+| Project | `GET/POST /api/v1/projects` | Project list / Create project |
+| Project | `GET/PUT/DELETE /api/v1/projects/{id}` | Project details / Edit / Delete |
+| Features | `GET/POST /api/v1/projects/{id}/features` | WBS tree / Add feature |
+| Budget | `GET/POST /api/v1/features/{id}/budget-items` | Budget items list / Add new |
+| Personnel| `GET/POST /api/v1/personnel` | Personnel list / Add new |
+| Salary | `GET/POST /api/v1/personnel/{id}/salaries` | Salary history / Adjust salary |
+| Roles | `GET/POST /api/v1/roles` | Roles list / Add new |
+| Team | `GET/POST /api/v1/projects/{id}/team` | Project team / Allocate members |
