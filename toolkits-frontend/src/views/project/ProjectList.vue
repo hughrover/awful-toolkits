@@ -66,32 +66,38 @@ onMounted(loadProjects)
 </script>
 
 <template>
-  <div>
-    <el-card>
+  <div class="project-list-container">
+    <el-card class="custom-card" shadow="never">
       <template #header>
         <div class="card-header">
-          <span>项目列表</span>
+          <span class="title">项目列表</span>
           <el-button type="primary" @click="openCreate">
             <el-icon><Plus /></el-icon>新建项目
           </el-button>
         </div>
       </template>
 
-      <el-table :data="projects" stripe>
-        <el-table-column prop="name" label="项目名称" min-width="150" />
-        <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="startDate" label="开始日期" width="120" />
-        <el-table-column prop="endDate" label="结束日期" width="120" />
-        <el-table-column prop="status" label="状态" width="100">
+      <el-table 
+        :data="projects" 
+        stripe 
+        style="width: 100%"
+        :header-cell-style="{ background: '#f8f9fa', color: '#606266', fontWeight: 'bold', height: '56px' }"
+        :cell-style="{ height: '60px' }"
+      >
+        <el-table-column prop="name" label="项目名称" min-width="180" />
+        <el-table-column prop="description" label="描述" min-width="300" show-overflow-tooltip />
+        <el-table-column prop="startDate" label="开始日期" width="140" align="center" />
+        <el-table-column prop="endDate" label="结束日期" width="140" align="center" />
+        <el-table-column prop="status" label="状态" width="120" align="center">
           <template #default="{ row }">
-            <el-tag :type="statusType[row.status as number]">{{ statusMap[row.status as number] }}</el-tag>
+            <el-tag :type="statusType[row.status as number]" effect="plain">{{ statusMap[row.status as number] }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="220" fixed="right" align="center">
           <template #default="{ row }">
-            <el-button size="small" @click="viewDetail(row)">详情</el-button>
-            <el-button size="small" type="primary" @click="openEdit(row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(row)">删除</el-button>
+            <el-button size="small" @click="viewDetail(row)" link type="primary">详情</el-button>
+            <el-button size="small" type="primary" @click="openEdit(row)" link>编辑</el-button>
+            <el-button size="small" type="danger" @click="handleDelete(row)" link>删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -128,9 +134,35 @@ onMounted(loadProjects)
 </template>
 
 <style scoped>
+.project-list-container {
+  padding: 0;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.custom-card {
+  border: 1px solid #ebeef5;
+  border-radius: 4px;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 10px 0;
+}
+
+.card-header .title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+
+:deep(.el-table) {
+  --el-table-border-color: #f0f0f0;
+}
+
+:deep(.el-table__header) {
+  border-bottom: 2px solid #f0f0f0;
 }
 </style>

@@ -21,8 +21,8 @@ function handleSelect(index: string) {
   <el-container class="app-container">
     <el-aside :width="isCollapse ? '64px' : '220px'" class="app-aside">
       <div class="logo-container">
-        <span v-show="!isCollapse" class="logo-text">工作工具集</span>
-        <el-icon v-show="isCollapse" class="logo-icon"><Tools /></el-icon>
+        <el-icon v-if="isCollapse" class="logo-icon"><Tools /></el-icon>
+        <span v-else class="logo-text">工作工具集</span>
       </div>
       <el-menu
         :default-active="route.path"
@@ -30,7 +30,8 @@ function handleSelect(index: string) {
         background-color="#304156"
         text-color="#bfcbd9"
         active-text-color="#409eff"
-        @select="handleSelect"
+        router
+        class="side-menu"
       >
         <el-menu-item v-for="item in menuItems" :key="item.index" :index="item.index">
           <el-icon><component :is="item.icon" /></el-icon>
@@ -42,12 +43,18 @@ function handleSelect(index: string) {
         <el-icon v-else><DArrowRight /></el-icon>
       </div>
     </el-aside>
-    <el-container>
+    <el-container class="main-container">
       <el-header class="app-header">
-        <span class="header-title">工作工具集平台</span>
+        <div class="header-left">
+          <span class="header-title">工作工具集平台</span>
+        </div>
       </el-header>
       <el-main class="app-main">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <transition name="fade-transform" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </el-main>
     </el-container>
   </el-container>
@@ -56,13 +63,17 @@ function handleSelect(index: string) {
 <style scoped>
 .app-container {
   height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
 .app-aside {
   background-color: #304156;
-  transition: width 0.3s;
+  transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
   display: flex;
   flex-direction: column;
+  box-shadow: 2px 0 6px rgba(0, 21, 41, 0.35);
+  z-index: 1001;
 }
 
 .logo-container {
@@ -73,6 +84,7 @@ function handleSelect(index: string) {
   color: #fff;
   font-size: 18px;
   font-weight: bold;
+  background-color: #2b2f3a;
 }
 
 .logo-text {
@@ -83,17 +95,30 @@ function handleSelect(index: string) {
   font-size: 24px;
 }
 
+.side-menu {
+  border-right: none;
+  flex: 1;
+}
+
 .collapse-btn {
-  margin-top: auto;
-  padding: 12px;
-  text-align: center;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #bfcbd9;
   cursor: pointer;
-  border-top: 1px solid #3a4a5c;
+  background-color: #2b2f3a;
+  transition: background-color 0.3s;
 }
 
 .collapse-btn:hover {
   background-color: #263445;
+}
+
+.main-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-header {
@@ -101,21 +126,37 @@ function handleSelect(index: string) {
   border-bottom: 1px solid #e6e6e6;
   display: flex;
   align-items: center;
-  padding: 0 20px;
+  padding: 0 24px;
+  height: 60px;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
 }
 
 .header-title {
-  font-size: 16px;
-  font-weight: 500;
-  color: #303133;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
 }
 
 .app-main {
   background: #f0f2f5;
-  padding: 20px;
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
 }
 
-:deep(.el-menu) {
-  border-right: none;
+/* transition */
+.fade-transform-enter-active,
+.fade-transform-leave-active {
+  transition: all 0.3s;
+}
+
+.fade-transform-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.fade-transform-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>

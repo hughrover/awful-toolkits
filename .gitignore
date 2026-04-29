@@ -24,5 +24,8 @@
 # Claude Code
 .claude/
 
+# Gemini CLI
+.gemini/
+
 # OpenSpec
 openspec/
