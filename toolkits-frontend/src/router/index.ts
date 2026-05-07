@@ -27,6 +27,11 @@ const router = createRouter({
       name: 'RoleManagement',
       component: () => import('@/views/personnel/RoleManagement.vue'),
     },
+    {
+      path: '/chat',
+      name: 'ChatView',
+      component: () => import('@/views/chat/ChatView.vue'),
+    },
   ],
 })
 

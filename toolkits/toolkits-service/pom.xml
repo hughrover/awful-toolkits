@@ -25,6 +25,16 @@
             <artifactId>spring-context</artifactId>
         </dependency>
 
+        <!-- spring ai alibaba -->
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-dashscope</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-agent-framework</artifactId>
+        </dependency>
+
         <!-- poi for excel processing -->
         <dependency>
             <groupId>org.apache.poi</groupId>

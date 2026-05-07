@@ -60,10 +60,10 @@ Edit the `.env` file in the project root:
 
 ```env
 # Database
-MYSQL_ROOT_PASSWORD=root123
+MYSQL_ROOT_PASSWORD=${your_password}
 MYSQL_DB_NAME=toolkits
-MYSQL_USERNAME=root
-MYSQL_PASSWORD=root123
+MYSQL_USERNAME={your_username}
+MYSQL_PASSWORD=${your_password}
 DB_PORT=3306
 
 # Backend
@@ -71,6 +71,9 @@ BACKEND_PORT=8080
 
 # Frontend
 FRONTEND_PORT=80
+
+# AI (Optional)
+DASH_SCOPE_API_KEY=${your_dashscope_api_key_here}
 ```
 
 ### 4. Start with Docker

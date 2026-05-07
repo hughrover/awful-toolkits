@@ -45,10 +45,38 @@
         <itext.version>8.0.2</itext.version>
         <!-- fastjson -->
         <fastjson.version>2.0.52</fastjson.version>
+        <!-- spring ai -->
+        <spring-ai.version>1.1.2</spring-ai.version>
+        <spring-ai-alibaba.version>1.1.2.0</spring-ai-alibaba.version>
+        <spring-ai-alibaba-extensions.version>1.1.2.1</spring-ai-alibaba-extensions.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- spring ai bom -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- spring ai alibaba bom -->
+            <dependency>
+                <groupId>com.alibaba.cloud.ai</groupId>
+                <artifactId>spring-ai-alibaba-bom</artifactId>
+                <version>${spring-ai-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- spring ai alibaba extensions bom -->
+            <dependency>
+                <groupId>com.alibaba.cloud.ai</groupId>
+                <artifactId>spring-ai-alibaba-extensions-bom</artifactId>
+                <version>${spring-ai-alibaba-extensions.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- mybatis plus -->
             <dependency>
                 <groupId>com.baomidou</groupId>
@@ -177,11 +205,6 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository>
-        <repository>
-            <id>alibaba-ai</id>
-            <name>Alibaba AI</name>
-            <url>https://maven.aliyun.com/repository/spring</url>
         </repository>
     </repositories>
 </project>

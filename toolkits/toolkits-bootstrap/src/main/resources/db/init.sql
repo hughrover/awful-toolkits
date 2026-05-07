@@ -95,3 +95,25 @@ INSERT INTO `development_role` (`name`, `description`, `created_at`, `updated_at
 ('测试工程师', '负责软件测试和质量保障', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
 ('产品经理', '负责产品需求分析和规划', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
 ('项目经理', '负责项目进度和资源管理', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
+
+-- Chat session table
+CREATE TABLE IF NOT EXISTS `chat_session` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `user_id` BIGINT NOT NULL COMMENT '用户ID',
+    `title` VARCHAR(200) NOT NULL COMMENT '会话标题',
+    `created_at` BIGINT NOT NULL COMMENT '创建时间戳(ms)',
+    `updated_at` BIGINT NOT NULL COMMENT '更新时间戳(ms)',
+    PRIMARY KEY (`id`),
+    KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天会话表';
+
+-- Chat message table
+CREATE TABLE IF NOT EXISTS `chat_message` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `session_id` BIGINT NOT NULL COMMENT '会话ID',
+    `role` VARCHAR(20) NOT NULL COMMENT '角色: user, assistant, system',
+    `content` TEXT NOT NULL COMMENT '内容',
+    `created_at` BIGINT NOT NULL COMMENT '创建时间戳(ms)',
+    PRIMARY KEY (`id`),
+    KEY `idx_session_id` (`session_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='聊天消息表';

@@ -22,3 +22,10 @@ api.interceptors.response.use(
 )
 
 export default api
+
+export const chatApi = {
+  getSessions: () => api.get('/chat/sessions'),
+  createSession: (title: string) => api.post('/chat/sessions', { title }),
+  deleteSession: (id: number) => api.delete(`/chat/sessions/${id}`),
+  getHistory: (sessionId: number) => api.get(`/chat/history/${sessionId}`),
+}
