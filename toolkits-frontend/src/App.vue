@@ -7,6 +7,7 @@ const route = useRoute()
 const isCollapse = ref(false)
 
 const menuItems = [
+  { index: '/chat', title: 'AI 助手', icon: 'ChatDotRound' },
   { index: '/projects', title: '项目预算管理', icon: 'Money' },
   { index: '/personnel', title: '人员管理', icon: 'User' },
   { index: '/roles', title: '角色管理', icon: 'Setting' },
