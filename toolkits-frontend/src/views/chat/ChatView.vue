@@ -167,8 +167,13 @@ onMounted(() => {
 <style scoped>
 .chat-container {
   display: flex;
-  height: calc(100vh - 60px);
+  height: 100%;
   background: #fff;
+}
+
+/* Ensure the parent container doesn't scroll when chat is active */
+:global(.app-main:has(.chat-container)) {
+  overflow: hidden !important;
 }
 
 .chat-main {
@@ -178,6 +183,7 @@ onMounted(() => {
   max-width: 900px;
   margin: 0 auto;
   width: 100%;
+  overflow: hidden;
 }
 
 .chat-header {
