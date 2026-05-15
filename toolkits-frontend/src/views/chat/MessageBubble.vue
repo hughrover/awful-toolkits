@@ -2,9 +2,14 @@
   <div :class="['message-row', role]">
     <div class="avatar">{{ role === 'user' ? 'U' : 'AI' }}</div>
     <div class="message-bubble">
-      <div class="content" v-html="formattedContent">
+      <div v-if="isThinking" class="thinking-dots">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
-      <span v-if="isStreaming" class="cursor">|</span>
+      <div v-else class="content" v-html="formattedContent">
+      </div>
+      <span v-if="isStreaming && !isThinking" class="cursor">|</span>
     </div>
   </div>
 </template>
@@ -17,6 +22,10 @@ const props = defineProps<{
   content?: string;
   isStreaming?: boolean;
 }>();
+
+const isThinking = computed(() => {
+  return props.role === 'assistant' && props.isStreaming && (!props.content || props.content.trim() === '');
+});
 
 const formattedContent = computed(() => {
   const text = props.content || '';
@@ -71,6 +80,9 @@ const formattedContent = computed(() => {
   font-size: 15px;
   line-height: 1.5;
   word-break: break-word;
+  min-height: 44px; /* Ensure bubble doesn't collapse */
+  display: flex;
+  align-items: center;
 }
 
 .user .message-bubble {
@@ -81,6 +93,42 @@ const formattedContent = computed(() => {
 .assistant .message-bubble {
   background: #f1f3f4;
   color: #000;
+}
+
+.content {
+  width: 100%;
+}
+
+.thinking-dots {
+  display: flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.thinking-dots span {
+  width: 6px;
+  height: 6px;
+  background-color: #909399;
+  border-radius: 50%;
+  display: inline-block;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.thinking-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.thinking-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { 
+    transform: scale(0);
+  } 
+  40% { 
+    transform: scale(1.0);
+  }
 }
 
 .cursor {
