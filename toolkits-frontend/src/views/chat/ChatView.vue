@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, nextTick, provide } from 'vue';
 import ChatSidebar from './ChatSidebar.vue';
 import MessageBubble from './MessageBubble.vue';
 import { chatApi } from '@/api';
@@ -74,6 +74,8 @@ const scrollToBottom = () => {
     }
   });
 };
+
+provide('scrollToBottom', scrollToBottom);
 
 const fetchSessions = async () => {
   const res = await chatApi.getSessions();

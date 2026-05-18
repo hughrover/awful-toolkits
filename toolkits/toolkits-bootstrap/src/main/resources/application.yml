@@ -8,6 +8,18 @@ spring:
       chat:
         options:
           model: qwen-max
+      image:
+        options:
+          model: wanx-v1
+          n: 1
+          width: 1024
+          height: 1024
+    retry:
+      max-attempts: 20
+      backoff:
+        initial-interval: 3000
+        multiplier: 2
+        max-interval: 10000
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/${MYSQL_DB_NAME:toolkits}?useSSL=false&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true}

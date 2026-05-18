@@ -7,7 +7,7 @@
         <span></span>
         <span></span>
       </div>
-      <div v-else class="content" v-html="formattedContent">
+      <div v-else class="content markdown-body" v-html="formattedContent">
       </div>
       <span v-if="isStreaming && !isThinking" class="cursor">|</span>
     </div>
@@ -15,7 +15,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
+import MarkdownIt from 'markdown-it';
 
 const props = defineProps<{
   role: 'user' | 'assistant' | 'system';
@@ -23,21 +24,23 @@ const props = defineProps<{
   isStreaming?: boolean;
 }>();
 
+const scrollToBottom = inject('scrollToBottom', () => {});
+
 const isThinking = computed(() => {
   return props.role === 'assistant' && props.isStreaming && (!props.content || props.content.trim() === '');
 });
 
+const md = new MarkdownIt({
+  html: false,
+  linkify: true,
+  breaks: true
+});
+
 const formattedContent = computed(() => {
-  const text = props.content || '';
-  // Simple markdown-like formatting
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br/>')
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code>$1</code>');
+  const rendered = md.render(props.content || '');
+  // Trigger scroll after render in next tick if needed, 
+  // though ChatView usually handles this during streaming.
+  return rendered;
 });
 </script>
 
@@ -99,6 +102,64 @@ const formattedContent = computed(() => {
   width: 100%;
 }
 
+/* Markdown Styles */
+:deep(.markdown-body) {
+  word-wrap: break-word;
+}
+
+:deep(.markdown-body p) {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+:deep(.markdown-body p:last-child) {
+  margin-bottom: 0;
+}
+
+:deep(.markdown-body img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-top: 10px;
+  border: 1px solid #e0e0e0;
+  display: block;
+}
+
+:deep(.markdown-body code) {
+  background: rgba(0,0,0,0.05);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+:deep(.markdown-body pre) {
+  background: #f6f8fa;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+
+:deep(.markdown-body ul), :deep(.markdown-body ol) {
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+
+:deep(.markdown-body table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+}
+
+:deep(.markdown-body th), :deep(.markdown-body td) {
+  border: 1px solid #dfe2e5;
+  padding: 6px 13px;
+}
+
+:deep(.markdown-body tr:nth-child(2n)) {
+  background-color: #f6f8fa;
+}
+
 .thinking-dots {
   display: flex;
   gap: 4px;
@@ -145,11 +206,5 @@ const formattedContent = computed(() => {
   0% { opacity: 1; }
   50% { opacity: 0; }
   100% { opacity: 1; }
-}
-
-:deep(code) {
-  background: rgba(0,0,0,0.05);
-  padding: 2px 4px;
-  border-radius: 4px;
 }
 </style>
