@@ -7,15 +7,22 @@
         <span></span>
         <span></span>
       </div>
-      <div v-else class="content markdown-body" v-html="formattedContent">
+      <div v-else class="content markdown-body" v-html="formattedContent" @click="handleImageClick">
       </div>
       <span v-if="isStreaming && !isThinking" class="cursor">|</span>
     </div>
+
+    <!-- Image Viewer -->
+    <el-image-viewer
+      v-if="showViewer"
+      :url-list="[previewUrl]"
+      @close="closeViewer"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from 'vue';
+import { computed, inject, ref } from 'vue';
 import MarkdownIt from 'markdown-it';
 
 const props = defineProps<{
@@ -29,6 +36,22 @@ const scrollToBottom = inject('scrollToBottom', () => {});
 const isThinking = computed(() => {
   return props.role === 'assistant' && props.isStreaming && (!props.content || props.content.trim() === '');
 });
+
+// Image preview state
+const showViewer = ref(false);
+const previewUrl = ref('');
+
+const handleImageClick = (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  if (target.tagName === 'IMG') {
+    previewUrl.value = (target as HTMLImageElement).src;
+    showViewer.value = true;
+  }
+};
+
+const closeViewer = () => {
+  showViewer.value = false;
+};
 
 const md = new MarkdownIt({
   html: false,
@@ -123,6 +146,12 @@ const formattedContent = computed(() => {
   margin-top: 10px;
   border: 1px solid #e0e0e0;
   display: block;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+:deep(.markdown-body img:hover) {
+  opacity: 0.9;
 }
 
 :deep(.markdown-body code) {
