@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Search, Filter } from '@element-plus/icons-vue'
 import api from '@/api'
+import ProjectCard from './ProjectCard.vue'
 
 interface Project {
   id: number
@@ -18,9 +20,17 @@ const projects = ref<Project[]>([])
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const form = ref<Partial<Project>>({})
+const searchQuery = ref('')
+const statusFilter = ref<number | null>(null)
 
-const statusMap: Record<number, string> = { 0: '草稿', 1: '进行中', 2: '已完成' }
-const statusType: Record<number, string> = { 0: 'info', 1: 'warning', 2: 'success' }
+const filteredProjects = computed(() => {
+  return projects.value.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
+                         (p.description && p.description.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    const matchesStatus = statusFilter.value === null || p.status === statusFilter.value
+    return matchesSearch && matchesStatus
+  })
+})
 
 async function loadProjects() {
   const res = await api.get('/projects')
@@ -58,8 +68,8 @@ async function handleDelete(project: Project) {
   loadProjects()
 }
 
-function viewDetail(row: Project) {
-  router.push(`/projects/${row.id}`)
+function viewDetail(project: Project) {
+  router.push(`/projects/${project.id}`)
 }
 
 onMounted(loadProjects)
@@ -67,67 +77,90 @@ onMounted(loadProjects)
 
 <template>
   <div class="project-list-container">
-    <el-card class="custom-card" shadow="never">
-      <template #header>
-        <div class="card-header">
-          <span class="title">项目列表</span>
-          <el-button type="primary" @click="openCreate">
-            <el-icon><Plus /></el-icon>新建项目
-          </el-button>
-        </div>
-      </template>
+    <div class="page-header">
+      <div class="header-left">
+        <h2 class="page-title">项目工作台</h2>
+        <span class="page-subtitle">管理并追踪您的所有项目进度</span>
+      </div>
+      <div class="header-actions">
+        <el-input
+          v-model="searchQuery"
+          placeholder="搜索项目名称或描述..."
+          class="search-input"
+          :prefix-icon="Search"
+          clearable
+        />
+        <el-select v-model="statusFilter" placeholder="全部状态" clearable class="status-select">
+          <template #prefix><el-icon><Filter /></el-icon></template>
+          <el-option :value="0" label="草稿" />
+          <el-option :value="1" label="进行中" />
+          <el-option :value="2" label="已完成" />
+        </el-select>
+        <el-button type="primary" @click="openCreate" :icon="Plus">新建项目</el-button>
+      </div>
+    </div>
 
-      <el-table 
-        :data="projects" 
-        stripe 
-        style="width: 100%"
-        :header-cell-style="{ background: '#f8f9fa', color: '#606266', fontWeight: 'bold', height: '56px' }"
-        :cell-style="{ height: '60px' }"
-      >
-        <el-table-column prop="name" label="项目名称" min-width="180" />
-        <el-table-column prop="description" label="描述" min-width="300" show-overflow-tooltip />
-        <el-table-column prop="startDate" label="开始日期" width="140" align="center" />
-        <el-table-column prop="endDate" label="结束日期" width="140" align="center" />
-        <el-table-column prop="status" label="状态" width="120" align="center">
-          <template #default="{ row }">
-            <el-tag :type="statusType[row.status as number]" effect="plain">{{ statusMap[row.status as number] }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="220" fixed="right" align="center">
-          <template #default="{ row }">
-            <el-button size="small" @click="viewDetail(row)" link type="primary">详情</el-button>
-            <el-button size="small" type="primary" @click="openEdit(row)" link>编辑</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(row)" link>删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+    <div v-if="filteredProjects.length > 0" class="project-grid">
+      <el-row :gutter="20">
+        <el-col 
+          v-for="project in filteredProjects" 
+          :key="project.id" 
+          :xs="24" :sm="12" :md="8" :lg="6" :xl="4"
+          class="grid-col"
+        >
+          <ProjectCard 
+            :project="project" 
+            @edit="openEdit" 
+            @delete="handleDelete" 
+            @view="viewDetail"
+          />
+        </el-col>
+      </el-row>
+    </div>
+
+    <el-empty v-else description="没有找到匹配的项目" :image-size="200">
+      <el-button v-if="searchQuery || statusFilter !== null" @click="searchQuery = ''; statusFilter = null">清除筛选</el-button>
+      <el-button v-else type="primary" @click="openCreate">立即创建项目</el-button>
+    </el-empty>
 
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑项目' : '新建项目'" width="500px">
       <el-form :model="form" label-width="80px">
         <el-form-item label="项目名称">
-          <el-input v-model="form.name" />
+          <el-input v-model="form.name" placeholder="请输入项目名称" />
         </el-form-item>
-        <el-form-item label="描述">
-          <el-input v-model="form.description" type="textarea" :rows="3" />
+        <el-form-item label="项目描述">
+          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="简要说明项目目标和背景" />
         </el-form-item>
-        <el-form-item label="开始日期">
-          <el-date-picker v-model="form.startDate" type="date" value-format="YYYY-MM-DD" />
+        <el-form-item label="起止日期">
+          <div class="date-picker-group">
+            <el-date-picker
+              v-model="form.startDate"
+              type="date"
+              placeholder="开始日期"
+              value-format="YYYY-MM-DD"
+              style="width: 48%"
+            />
+            <span class="date-separator">-</span>
+            <el-date-picker
+              v-model="form.endDate"
+              type="date"
+              placeholder="结束日期"
+              value-format="YYYY-MM-DD"
+              style="width: 48%"
+            />
+          </div>
         </el-form-item>
-        <el-form-item label="结束日期">
-          <el-date-picker v-model="form.endDate" type="date" value-format="YYYY-MM-DD" />
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="form.status">
-            <el-option :value="0" label="草稿" />
-            <el-option :value="1" label="进行中" />
-            <el-option :value="2" label="已完成" />
-          </el-select>
+        <el-form-item label="项目状态">
+          <el-radio-group v-model="form.status">
+            <el-radio :label="0">草稿</el-radio>
+            <el-radio :label="1">进行中</el-radio>
+            <el-radio :label="2">已完成</el-radio>
+          </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSave">保存</el-button>
+        <el-button type="primary" @click="handleSave">确认保存</el-button>
       </template>
     </el-dialog>
   </div>
@@ -136,33 +169,73 @@ onMounted(loadProjects)
 <style scoped>
 .project-list-container {
   padding: 0;
-  max-width: 1600px;
-  margin: 0 auto;
+  max-width: 100%;
 }
 
-.custom-card {
-  border: 1px solid #ebeef5;
-  border-radius: 4px;
-}
-
-.card-header {
+.page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
+  align-items: flex-end;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
-.card-header .title {
-  font-size: 18px;
-  font-weight: 600;
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
   color: #303133;
+  margin: 0 0 8px 0;
 }
 
-:deep(.el-table) {
-  --el-table-border-color: #f0f0f0;
+.page-subtitle {
+  font-size: 14px;
+  color: #909399;
 }
 
-:deep(.el-table__header) {
-  border-bottom: 2px solid #f0f0f0;
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  width: 280px;
+}
+
+.status-select {
+  width: 150px;
+}
+
+.grid-col {
+  margin-bottom: 20px;
+}
+
+.date-picker-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.date-separator {
+  display: inline-block;
+  width: 4%;
+  text-align: center;
+  color: #909399;
+}
+
+:deep(.el-dialog__body) {
+  padding-top: 10px;
+}
+
+/* 列表过渡动画 */
+.project-grid {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

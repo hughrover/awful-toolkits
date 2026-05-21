@@ -1,6 +1,7 @@
 package fun.toolkits.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -28,4 +29,8 @@ public class Project {
     private Long createdAt;
 
     private Long updatedAt;
+
+    /** 参与人数 (非数据库字段) */
+    @TableField(exist = false)
+    private Integer personnelCount;
 }
