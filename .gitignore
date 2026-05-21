@@ -29,3 +29,7 @@
 
 # OpenSpec
 openspec/
+
+# Agent & CLI Configs
+.agent/
+.antigravitycli/
