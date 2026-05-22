@@ -30,6 +30,22 @@
           </div>
           
           <div class="input-container">
+            <div class="skill-toolbar">
+              <el-tooltip
+                v-for="skill in skills"
+                :key="skill.name"
+                :content="skill.name"
+                placement="top"
+              >
+                <el-button 
+                  circle 
+                  size="small" 
+                  @click="useSkill(skill)"
+                  :icon="skill.icon"
+                >
+                </el-button>
+              </el-tooltip>
+            </div>
             <div class="input-box">
               <textarea 
                 v-model="userInput" 
@@ -49,16 +65,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, provide } from 'vue';
+import { ref, onMounted, nextTick, provide, markRaw } from 'vue';
 import ChatSidebar from './ChatSidebar.vue';
 import MessageBubble from './MessageBubble.vue';
 import { useChatStore } from '@/stores/chat';
-import { ChatLineRound, Close, Promotion } from '@element-plus/icons-vue';
+import { 
+  ChatLineRound, 
+  Close, 
+  Promotion, 
+  EditPen, 
+  Picture 
+} from '@element-plus/icons-vue';
 
 const store = useChatStore();
 const userInput = ref('');
 const messageContainer = ref<HTMLElement | null>(null);
 const showSessions = ref(false); // Initially hide sessions to keep it compact
+
+const skills = [
+  { 
+    name: '翻译', 
+    icon: markRaw(EditPen), 
+    template: '请帮我翻译这段话：' 
+  },
+  { 
+    name: '文生图', 
+    icon: markRaw(Picture), 
+    template: '请帮我生成一张图片：' 
+  }
+];
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -82,6 +117,10 @@ const handleSendMessage = async () => {
     console.error('Failed to send message:', error);
     userInput.value = userMsg;
   }
+};
+
+const useSkill = (skill: { name: string, template: string }) => {
+  userInput.value = skill.template + userInput.value;
 };
 
 onMounted(() => {
@@ -148,9 +187,15 @@ onMounted(() => {
 }
 
 .input-container {
-  padding: 16px;
+  padding: 12px 16px 16px;
   border-top: 1px solid #f0f0f0;
   background: #fff;
+}
+
+.skill-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .input-box {
