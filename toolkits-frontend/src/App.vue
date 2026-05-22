@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import FloatingToggleBall from './views/chat/FloatingToggleBall.vue'
+import SidebarChatAssistant from './views/chat/SidebarChatAssistant.vue'
 
 const router = useRouter()
 const route = useRoute()
 const isCollapse = ref(false)
 
 const menuItems = [
-  { index: '/chat', title: 'AI 助手', icon: 'ChatDotRound' },
   { index: '/projects', title: '项目预算管理', icon: 'Money' },
   { index: '/personnel', title: '人员管理', icon: 'User' },
   { index: '/roles', title: '角色管理', icon: 'Setting' },
@@ -59,6 +60,10 @@ function handleSelect(index: string) {
       </el-main>
     </el-container>
   </el-container>
+  <teleport to="body">
+    <FloatingToggleBall />
+    <SidebarChatAssistant />
+  </teleport>
 </template>
 
 <style scoped>

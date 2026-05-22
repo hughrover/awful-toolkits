@@ -1,22 +1,22 @@
 <template>
   <div class="chat-container">
     <ChatSidebar 
-      :sessions="sessions" 
-      :currentSessionId="currentSessionId"
-      @new-chat="createNewSession"
-      @select-session="selectSession"
-      @delete-session="deleteSession"
+      :sessions="store.sessions" 
+      :currentSessionId="store.currentSessionId"
+      @new-chat="store.createNewSession"
+      @select-session="store.selectSession"
+      @delete-session="store.deleteSession"
     />
     
     <div class="chat-main">
       <div class="chat-header">
-        <h2>{{ currentSession?.title || 'AI 助手' }}</h2>
+        <h2>{{ store.currentSession?.title || 'AI 助手' }}</h2>
       </div>
       
       <div class="messages" ref="messageContainer">
-        <MessageBubble v-for="(msg, index) in messages" :key="index" :role="msg.role" :content="msg.content" />
-        <MessageBubble v-if="isStreaming" role="assistant" :isStreaming="true">
-          {{ streamingContent }}
+        <MessageBubble v-for="(msg, index) in store.messages" :key="index" :role="msg.role" :content="msg.content" />
+        <MessageBubble v-if="store.isStreaming" role="assistant" :isStreaming="true">
+          {{ store.streamingContent }}
         </MessageBubble>
       </div>
       
@@ -29,10 +29,10 @@
           <textarea 
             v-model="userInput" 
             placeholder="输入您的问题..." 
-            @keydown.enter.prevent="sendMessage"
+            @keydown.enter.prevent="handleSendMessage"
             rows="3"
           ></textarea>
-          <button class="send-btn" :disabled="!userInput.trim() || isStreaming" @click="sendMessage">
+          <button class="send-btn" :disabled="!userInput.trim() || store.isStreaming" @click="handleSendMessage">
             发送
           </button>
         </div>
@@ -42,30 +42,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, provide } from 'vue';
+import { ref, onMounted, nextTick, provide } from 'vue';
 import ChatSidebar from './ChatSidebar.vue';
 import MessageBubble from './MessageBubble.vue';
-import { chatApi } from '@/api';
+import { useChatStore } from '@/stores/chat';
 
-interface Session {
-  id: number;
-  title: string;
-}
-
-interface Message {
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-}
-
-const sessions = ref<Session[]>([]);
-const messages = ref<Message[]>([]);
+const store = useChatStore();
 const userInput = ref('');
-const currentSessionId = ref<number | null>(null);
-const isStreaming = ref(false);
-const streamingContent = ref('');
 const messageContainer = ref<HTMLElement | null>(null);
-
-const currentSession = computed(() => sessions.value.find(s => s.id === currentSessionId.value));
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -77,79 +61,17 @@ const scrollToBottom = () => {
 
 provide('scrollToBottom', scrollToBottom);
 
-const fetchSessions = async () => {
-  const res = await chatApi.getSessions();
-  sessions.value = res.data;
-};
-
-const createNewSession = async () => {
-  const res = await chatApi.createSession('新对话');
-  await fetchSessions();
-  selectSession(res.data);
-};
-
-const selectSession = async (session: Session) => {
-  currentSessionId.value = session.id;
-  const res = await chatApi.getHistory(session.id);
-  messages.value = res.data;
-  scrollToBottom();
-};
-
-const deleteSession = async (id: number) => {
-  await chatApi.deleteSession(id);
-  if (currentSessionId.value === id) {
-    currentSessionId.value = null;
-    messages.value = [];
-  }
-  await fetchSessions();
-};
-
-const sendMessage = async () => {
-  if (!userInput.value.trim() || isStreaming.value) return;
+const handleSendMessage = async () => {
+  if (!userInput.value.trim() || store.isStreaming) return;
   
   const userMsg = userInput.value;
-  userInput.value = ''; // Clear input immediately for better UX
+  userInput.value = '';
   
   try {
-    if (!currentSessionId.value) {
-      const res = await chatApi.createSession(userMsg.substring(0, 20));
-      currentSessionId.value = res.data.id;
-      await fetchSessions();
-    }
-
-    messages.value.push({ role: 'user', content: userMsg });
-    scrollToBottom();
-
-    isStreaming.value = true;
-    streamingContent.value = '';
-
-    const url = `/api/v1/chat/stream?sessionId=${currentSessionId.value}&message=${encodeURIComponent(userMsg)}`;
-    const eventSource = new EventSource(url);
-    
-    eventSource.onmessage = (event) => {
-      let data = event.data;
-      if (data.startsWith('"') && data.endsWith('"')) {
-        data = JSON.parse(data);
-      }
-      streamingContent.value += data;
-      scrollToBottom();
-    };
-
-    eventSource.onerror = (error) => {
-      console.log('SSE connection closed or error occurred');
-      eventSource.close();
-      if (streamingContent.value) {
-        messages.value.push({ role: 'assistant', content: streamingContent.value });
-      }
-      streamingContent.value = '';
-      isStreaming.value = false;
-      fetchSessions();
-    };
+    await store.sendMessage(userMsg, scrollToBottom);
   } catch (error: any) {
-    console.error('Failed to send message:', error);
     alert('发送失败: ' + (error.message || '未知错误'));
-    isStreaming.value = false;
-    userInput.value = userMsg; // Restore input on error
+    userInput.value = userMsg;
   }
 };
 
@@ -162,7 +84,8 @@ const useSkill = (skill: string) => {
 };
 
 onMounted(() => {
-  fetchSessions();
+  store.fetchSessions();
+  scrollToBottom();
 });
 </script>
 
@@ -173,7 +96,6 @@ onMounted(() => {
   background: #fff;
 }
 
-/* Ensure the parent container doesn't scroll when chat is active */
 :global(.app-main:has(.chat-container)) {
   overflow: hidden !important;
 }
