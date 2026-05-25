@@ -15,9 +15,7 @@
       
       <div class="messages" ref="messageContainer">
         <MessageBubble v-for="(msg, index) in store.messages" :key="index" :role="msg.role" :content="msg.content" />
-        <MessageBubble v-if="store.isStreaming" role="assistant" :isStreaming="true">
-          {{ store.streamingContent }}
-        </MessageBubble>
+        <MessageBubble v-if="store.isStreaming" role="assistant" :isStreaming="true" :content="store.streamingContent" />
       </div>
       
       <div class="input-container">

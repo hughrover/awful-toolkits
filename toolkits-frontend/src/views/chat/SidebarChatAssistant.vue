@@ -1,32 +1,44 @@
 <template>
   <transition name="slide-fade">
-    <div v-if="store.isSidebarVisible" class="sidebar-assistant">
+    <div v-if="store.isSidebarVisible" class="sidebar-assistant" :class="{ 'expanded': showSessions }">
       <div class="sidebar-header">
         <div class="header-info">
           <el-icon><ChatLineRound /></el-icon>
           <span class="title">AI 助手</span>
         </div>
-        <el-button link @click="store.toggleSidebar">
-          <el-icon><Close /></el-icon>
-        </el-button>
+        <div class="header-actions">
+          <el-tooltip content="新对话" placement="bottom">
+            <el-button link @click="store.createNewSession()">
+              <el-icon><Plus /></el-icon>
+            </el-button>
+          </el-tooltip>
+          <el-tooltip content="历史记录" placement="bottom">
+            <el-button link @click="showSessions = !showSessions">
+              <el-icon><Memo /></el-icon>
+            </el-button>
+          </el-tooltip>
+          <el-button link @click="store.toggleSidebar">
+            <el-icon><Close /></el-icon>
+          </el-button>
+        </div>
       </div>
       
       <div class="sidebar-content">
-        <ChatSidebar 
-          v-if="showSessions"
-          :sessions="store.sessions" 
-          :currentSessionId="store.currentSessionId"
-          @new-chat="store.createNewSession"
-          @select-session="store.selectSession"
-          @delete-session="store.deleteSession"
-        />
+        <transition name="el-fade-in">
+          <ChatSidebar 
+            v-if="showSessions"
+            :sessions="store.sessions" 
+            :currentSessionId="store.currentSessionId"
+            @new-chat="store.createNewSession"
+            @select-session="store.selectSession"
+            @delete-session="store.deleteSession"
+          />
+        </transition>
         
         <div class="chat-main">
           <div class="messages" ref="messageContainer">
             <MessageBubble v-for="(msg, index) in store.messages" :key="index" :role="msg.role" :content="msg.content" />
-            <MessageBubble v-if="store.isStreaming" role="assistant" :isStreaming="true">
-              {{ store.streamingContent }}
-            </MessageBubble>
+            <MessageBubble v-if="store.isStreaming" role="assistant" :isStreaming="true" :content="store.streamingContent" />
           </div>
           
           <div class="input-container">
@@ -74,7 +86,9 @@ import {
   Close, 
   Promotion, 
   EditPen, 
-  Picture 
+  Picture,
+  Plus,
+  Memo
 } from '@element-plus/icons-vue';
 
 const store = useChatStore();
@@ -141,6 +155,17 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   z-index: 2999;
+  transition: width 0.3s ease;
+}
+
+.sidebar-assistant.expanded {
+  width: 660px;
+}
+
+@media (max-width: 660px) {
+  .sidebar-assistant.expanded {
+    width: 100vw;
+  }
 }
 
 .sidebar-header {
@@ -159,6 +184,12 @@ onMounted(() => {
   gap: 8px;
   font-weight: 600;
   font-size: 16px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .sidebar-header :deep(.el-button) {
