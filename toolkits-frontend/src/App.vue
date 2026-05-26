@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import FloatingToggleBall from './views/chat/FloatingToggleBall.vue'
 import SidebarChatAssistant from './views/chat/SidebarChatAssistant.vue'
@@ -9,10 +9,30 @@ const route = useRoute()
 const isCollapse = ref(false)
 
 const menuItems = [
-  { index: '/projects', title: '项目预算管理', icon: 'Money' },
+  { index: '/projects', title: '项目管理', icon: 'Money' },
   { index: '/personnel', title: '人员管理', icon: 'User' },
   { index: '/roles', title: '角色管理', icon: 'Setting' },
 ]
+
+const breadcrumbs = computed(() => {
+  const path = route.path
+  const result = [{ title: '首页', path: '/' }]
+  
+  if (path === '/projects') {
+    result.push({ title: '项目管理', path: '/projects' })
+  } else if (path.startsWith('/projects/')) {
+    result.push({ title: '项目管理', path: '/projects' })
+    result.push({ title: '项目详情', path: path })
+  } else if (path === '/personnel') {
+    result.push({ title: '人员管理', path: '/personnel' })
+  } else if (path === '/roles') {
+    result.push({ title: '角色管理', path: '/roles' })
+  } else if (path === '/chat') {
+    result.push({ title: 'AI 助手', path: '/chat' })
+  }
+  
+  return result
+})
 
 function handleSelect(index: string) {
   router.push(index)
@@ -24,7 +44,7 @@ function handleSelect(index: string) {
     <el-aside :width="isCollapse ? '64px' : '220px'" class="app-aside">
       <div class="logo-container">
         <el-icon v-if="isCollapse" class="logo-icon"><Tools /></el-icon>
-        <span v-else class="logo-text">工作工具集</span>
+        <span v-else class="logo-text">工具箱</span>
       </div>
       <el-menu
         :default-active="route.path"
@@ -48,7 +68,19 @@ function handleSelect(index: string) {
     <el-container class="main-container">
       <el-header class="app-header">
         <div class="header-left">
-          <span class="header-title">工作工具集平台</span>
+          <span class="header-title">工具箱</span>
+          <el-divider direction="vertical" />
+          <el-breadcrumb separator="/">
+            <el-breadcrumb-item v-for="item in breadcrumbs" :key="item.path" :to="item.path">
+              {{ item.title }}
+            </el-breadcrumb-item>
+          </el-breadcrumb>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <el-avatar :size="32" icon="UserFilled" />
+            <span class="username">管理员</span>
+          </div>
         </div>
       </el-header>
       <el-main class="app-main">
@@ -132,15 +164,47 @@ function handleSelect(index: string) {
   border-bottom: 1px solid #e6e6e6;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 24px;
   height: 60px;
   box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  z-index: 1000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .header-title {
   font-size: 18px;
   font-weight: 600;
   color: #333;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.user-info:hover {
+  background-color: #f6f6f6;
+}
+
+.username {
+  font-size: 14px;
+  color: #666;
 }
 
 .app-main {
